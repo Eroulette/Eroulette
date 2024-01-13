@@ -1,0 +1,82 @@
+import random
+
+class RouletteTable:
+    def __init__(self):
+        # Numbers on the roulette table
+        self.numbers = list(range(0, 37))
+        # Colors (red, black, or green) of the numbers on the roulette table
+        self.colors = {0: 'green', 32: 'red', 15: 'black', 19: 'red', 4: 'black', 21: 'red',
+                       2: 'black', 25: 'red', 17: 'black', 34: 'red', 6: 'black', 27: 'red',
+                       13: 'black', 36: 'red', 11: 'black', 30: 'red', 8: 'black', 23: 'red',
+                       10: 'black', 5: 'red', 24: 'black', 16: 'red', 33: 'black', 1: 'red',
+                       20: 'black', 14: 'red', 31: 'black', 9: 'red', 22: 'black', 18: 'red',
+                       29: 'black', 7: 'red', 28: 'black', 12: 'red', 35: 'black', 3: 'red',
+                       26: 'black'}
+        # Betting options
+        self.betting_options = {'red': lambda x: self.colors[x] == 'red',
+                                'black': lambda x: self.colors[x] == 'black',
+                                'green': lambda x: self.colors[x] == 'green'}
+        # Initial balance
+        self.balance = 1000.0
+
+    def spin(self):
+        # Randomly choose a number
+        number = random.choice(self.numbers)
+        color = self.colors[number] if number in self.colors else 'unknown'
+        return number, color
+
+    def place_bet(self):
+        print(f'Current Balance: {self.balance}')
+        amount = float(input('Enter the amount to bet: '))
+
+        if amount > self.balance:
+            print(f'Insufficient balance. Your current balance is {self.balance}.')
+            return None, 0
+
+        color = input('Enter the color to bet on (red, black, or green): ')
+
+        if color not in self.betting_options:
+            print(f'Invalid color: {color}')
+            return None, 0
+
+        return self.betting_options[color], amount
+
+# Example usage
+roulette_table = RouletteTable()
+
+while roulette_table.balance > 0:
+    bet_condition, bet_amount = roulette_table.place_bet()
+
+    if bet_condition is not None:
+        result_number, result_color = roulette_table.spin()
+
+        if bet_condition(result_number):
+            if result_color == 'green':
+                winnings = 36 * bet_amount  # Green pays 36 times the bet
+            else:
+                winnings = 2 * bet_amount  # Red or black pays 2 times the bet
+
+            roulette_table.balance += winnings
+            print(f'Congratulations! You won {winnings} by betting on {result_color}.')
+        else:
+            roulette_table.balance -= bet_amount  # Loss of the original bet
+            print(f'Unfortunately, you lost. The winning number is {result_number} ({result_color}). You lose {bet_amount}.')
+
+        print(f'Current Balance: {roulette_table.balance}\n')
+
+    play_again = input('Do you want to play again? (yes/no): ').lower()
+    if play_again != 'yes':
+        break
+
+print(f'Final Balance: {roulette_table.balance}')
+
+if roulette_table.balance > 1000:
+    total_won = roulette_table.balance - 1000
+    print(f'Congratulations! You won a total of {total_won}.')
+elif roulette_table.balance < 1000:
+    total_lost = 1000 - roulette_table.balance
+    print(f'Unfortunately, you lost a total of {total_lost}.')
+else:
+    print('You broke even. No net gain or loss.')
+
+print('Thank you for playing!')
